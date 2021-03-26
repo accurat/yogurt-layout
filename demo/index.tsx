@@ -35,6 +35,14 @@ const layout = makeLayout({
 
 console.log(layout)
 
+// layout === {
+//   root: { top, left, right, bottom, width, height },
+//   title: { top, left, right, bottom, width, height },
+//   chart: { top, left, right, bottom, width, height },
+//   legend: { top, left, right, bottom, width, height },
+//   ...
+// }
+
 function Block({ layout, color }) {
   if (!layout) return null
   return (
@@ -65,11 +73,3 @@ ReactDOM.render(
   </svg>,
   document.getElementById('app')
 )
-
-// layout === {
-//   root: { top, left, right, bottom, width, height },
-//   title: { top, left, right, bottom, width, height },
-//   chart: { top, left, right, bottom, width, height },
-//   legend: { top, left, right, bottom, width, height },
-//   ...
-// }

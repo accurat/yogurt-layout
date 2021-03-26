@@ -1,22 +1,14 @@
 <div align="center" style="text-align: center;">
-
-  <h1>Dev</h1>
-
-A small JS layout computation library, to organize space in SVGs and canvases.
-
+  <h1>🍦 Yogurt Layout 🥛</h1>
+  A small JS layout computation library, to organize space in SVGs and canvases.
 </div>
 
 <p align="center">
-  <!-- npm version 
   <a href="https://www.npmjs.com/package/yogurt-layout">
     <img alt="npm"
       src="https://img.shields.io/npm/v/yogurt-layout">
-  </a>-->
+  </a>
 </p>
-
----
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 ## Install
 
@@ -30,21 +22,94 @@ or
 npm install yogurt-layout --save
 ```
 
+## Example
+
+```js
+const layout = makeLayout({
+  id: 'root',
+  direction: 'column',
+  width: 500,
+  height: 500,
+  padding: 20,
+  children: [
+    { id: 'title', width: '100%', height: 50 },
+    {
+      id: 'chart',
+      width: '100%',
+      height: 'auto',
+      direction: 'row',
+      padding: 0,
+      children: [
+        { id: 'left', width: 100, height: '100%' },
+        {
+          id: 'center-wrapper',
+          width: 'auto',
+          height: '100%',
+          padding: [10, 20],
+          direction: 'row',
+          children: [{ id: 'center', width: '100%', height: '100%' }],
+        },
+        { id: 'right', width: 100, height: '100%' },
+      ],
+    },
+    { id: 'legend', width: '100%', height: 150 },
+  ],
+})
+
+console.log(layout)
+
+// layout === {
+//   root: { top, left, right, bottom, width, height },
+//   title: { top, left, right, bottom, width, height },
+//   chart: { top, left, right, bottom, width, height },
+//   legend: { top, left, right, bottom, width, height },
+//   ...
+// }
+```
+
 ## Screenshots
 
-![screen]()
+After rendering the `<rect>`s, this is the result:
+
+<img width="513" alt="screenshot" src="https://user-images.githubusercontent.com/1799710/112647465-d8bd3480-8e48-11eb-8ecd-79309ef8419c.png">
 
 ## API
 
-Lorem ipsum dolor sit amet.
+The only exported function is `makeLayout`, which is to be called with a nested configuration of **LayoutNode**s.
+The root node **LayoutNodeRoot** must have numerical `width` and `height`, the nested ones can have them in *pixels* (integers), *percentages* (strings as `'50%'`), or *`'auto'`* to make it auto-expanding and take  the remaining space.
+Every **LayoutNode** can also have children, a `direction` to position them (`'row' | 'column'`) and a padding (ssupporting CSS format as arrays).
+The output is an object with the ids as keys, and the LayoutBlocks `{ width, height, left, top }` as values.
 
-## Example
+```typescript
+declare function makeLayout(root: LayoutNodeRoot): Dictionary<LayoutBlock>
 
-Lorem ipsum dolor sit amet.
+// Where:
 
-## Demo page
+type LayoutNode = {
+  id: string
+  children?: LayoutNode[]
+  width: number | Percentage | 'auto'
+  height: number | Percentage | 'auto'
+  direction?: 'row' | 'column'
+  padding?: PaddingFormat //
+}
 
-A [demo page]() is available.
+type LayoutNodeRoot = LayoutNode & { width: number; height: number; top?: number; left?: number }
+
+type PaddingFormat =
+  | number
+  | [number, number]
+  | [number, number, number, number]
+  | { top: number; right: number; bottom: number; left: number }
+
+type LayoutBlock = {
+  id: string
+  width: number
+  height: number
+  top: number
+  left: number
+}
+```
 
 ## License
 
