@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# testing
+coverage/
+
+# production
+build/
+dist/
+
+# misc
+.cache/
+.DS_Store
+.env
+.eslintcache
+
+# npm and yarn log
+*.log
+.parcel-cache/
+demo-build/

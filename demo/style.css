@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css?family=Nunito&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:200,300,400&display=swap');
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+}

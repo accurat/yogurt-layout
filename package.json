@@ -1,0 +1,42 @@
+{
+  "name": "yogurt-layout",
+  "description": "A small JS layout computation library, to organize space in SVGs and canvases.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caesarsol/yogurt-layout.git"
+  },
+  "author": {
+    "name": "Cesare Soldini",
+    "email": "smilemachine@gmail.com"
+  },
+  "private": false,
+  "license": "MIT",
+  "keywords": [
+    "layoutsvgcanvas"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "compile": "rm -rf dist/ && tsc --outDir dist",
+    "compile-watch": "rm -rf dist/ && tsc -w --outDir dist",
+    "format": "prettier src/**/*.{js,jsx,ts,tsx} --write",
+    "lint": "tslint -p tsconfig.json",
+    "prepublish": "yarn compile",
+    "clean": "yarn format && yarn lint",
+    "start:demo": "parcel demo/index.html",
+    "build": "parcel build demo/index.html --out-dir demo-build"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.168",
+    "parcel-bundler": "^1.12.5",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  }
+}

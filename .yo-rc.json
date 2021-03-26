@@ -1,0 +1,9 @@
+{
+  "generator-urca": {
+    "promptValues": {
+      "githubUsername": "caesarsol",
+      "githubEmail": "smilemachine@gmail.com",
+      "firstLastName": "Cesare Soldini"
+    }
+  }
+}
