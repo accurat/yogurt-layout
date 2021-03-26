@@ -24,6 +24,12 @@ npm install yogurt-layout --save
 
 ## Example
 
+To obtain this result:
+
+<img width="250" alt="screenshot" src="https://user-images.githubusercontent.com/1799710/112647465-d8bd3480-8e48-11eb-8ecd-79309ef8419c.png">
+
+Do this and then render the given `<rect>`s:
+
 ```js
 const layout = makeLayout({
   id: 'root',
@@ -66,12 +72,6 @@ console.log(layout)
 //   ...
 // }
 ```
-
-## Screenshots
-
-After rendering the `<rect>`s, this is the result:
-
-<img width="513" alt="screenshot" src="https://user-images.githubusercontent.com/1799710/112647465-d8bd3480-8e48-11eb-8ecd-79309ef8419c.png">
 
 ## API
 
