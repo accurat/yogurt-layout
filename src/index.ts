@@ -10,7 +10,7 @@ function computePercentage(value: string, total: number) {
   return total * (percentage / 100)
 }
 
-type PaddingFormat =
+export type PaddingFormat =
   | number
   | [number, number]
   | [number, number, number, number]
@@ -33,7 +33,7 @@ function buildPadding(padding: PaddingFormat) {
 
 type Percentage = string
 
-type LayoutNode = {
+export type LayoutNode = {
   id: string
   children?: LayoutNode[]
   width: number | Percentage | 'auto'
@@ -42,9 +42,14 @@ type LayoutNode = {
   padding?: PaddingFormat
 }
 
-type LayoutNodeRoot = LayoutNode & { width: number; height: number; top?: number; left?: number }
+export type LayoutNodeRoot = LayoutNode & {
+  width: number
+  height: number
+  top?: number
+  left?: number
+}
 
-type LayoutBlock = {
+export type LayoutBlock = {
   id: string
   width: number
   height: number
@@ -54,25 +59,16 @@ type LayoutBlock = {
   bottom?: number
 }
 
-type LayoutIdsIterator<T extends LayoutNode[], Accumulator extends string[] = []> = T extends [
-  infer Head,
-  ...infer Tail
-]
-  ? Tail extends LayoutNode[]
-    ? LayoutIdsIterator<Tail, [...Accumulator, ...LayoutIdsArray<Head>]>
-    : never
-  : Accumulator
+type Iterate<T, Acc = {}> = T extends [infer Head, ...infer Tail]
+  ? Head extends LayoutNode
+    ? Iterate<Tail, Acc & ComputedLayout<Head>>
+    : Iterate<Tail, Acc>
+  : Acc
 
-type LayoutIdsArray<T> = T extends LayoutNode
-  ? T['children'] extends infer Children
-    ? Children extends any[]
-      ? [T['id'], ...LayoutIdsIterator<Children>]
-      : [T['id']]
-    : never
-  : []
-
-type LayoutIds<T> = LayoutIdsArray<T>[number]
-type ComputedLayout<T extends LayoutNode> = { [k in LayoutIds<T>]: LayoutBlock }
+type Merge<T> = { [K in keyof T]: T[K] }
+export type ComputedLayout<T extends LayoutNode> = Merge<
+  { [k in T['id']]: LayoutBlock } & Iterate<T['children']>
+>
 
 function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock[] {
   const ids = nodes.map((n) => n.id)
