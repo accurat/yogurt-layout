@@ -55,8 +55,8 @@ export type LayoutBlock = {
   height: number
   top: number
   left: number
-  right?: number
-  bottom?: number
+  right: number
+  bottom: number
 }
 
 type Iterate<T, Acc = {}> = T extends [infer Head, ...infer Tail]
@@ -102,8 +102,8 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
   // position the elements
   const rootTop = (rootBlock?.top ?? 0) + padding.top
   const rootLeft = (rootBlock?.left ?? 0) + padding.left
-  let lefts
-  let tops
+  let lefts: number[]
+  let tops: number[]
   if (rootBlock.direction === 'column') {
     lefts = widths.map(() => rootLeft)
     tops = heights.map((_h, i) => rootTop + _.sum(heights.slice(0, i)))
@@ -114,17 +114,20 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
     throw new Error(`A node with children must specify a direction`)
   }
   // create the blocks
-  const blocks = _.zip<LayoutNode | string | number>(nodes, ids, widths, heights, tops, lefts).map(
-    ([node, id, width, height, top, left]) =>
-      ({
-        id,
-        width,
-        height,
-        top,
-        left,
-        node,
-      } as LayoutBlock & { node: LayoutNode })
-  )
+  const blocks = _.times(nodes.length).map<LayoutBlock & { node: LayoutNode }>((i) => {
+    const id = ids[i]
+    const node = nodes[i]
+
+    const width = widths[i]
+    const height = heights[i]
+    const top = tops[i]
+    const left = lefts[i]
+    const bottom = top + height
+    const right = left + width
+
+    return { id, width, height, top, left, node, bottom, right }
+  })
+
   // append their children blocks
   const childrenBlocks = blocks.flatMap((b) =>
     b.node.children !== undefined ? makeBlocks(b.node.children, { ...b.node, ...b }) : []
