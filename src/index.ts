@@ -63,12 +63,22 @@ export type LayoutBlock = {
 
 type ComputedLayout<Id extends string> = { [k in Id]: LayoutBlock }
 
+const defaultBlockProperties = {
+  width: 'auto',
+  height: 'auto',
+  direction: 'row',
+  padding: 0,
+  top: 0,
+  left: 0,
+}
+
 function makeBlocks<Id extends string>(
   nodes: LayoutNode<Id>[],
-  rootBlock: LayoutNodeRoot<Id>
+  rootBlockNondefaulted: LayoutNodeRoot<Id>
 ): LayoutBlock[] {
+  const rootBlock = Object.assign({}, defaultBlockProperties, rootBlockNondefaulted)
   const ids = nodes.map((n) => n.id)
-  const padding = buildPadding(rootBlock.padding || 0)
+  const padding = buildPadding(rootBlock.padding)
   const availableWidth = rootBlock.width - padding.left - padding.right
   const availableHeight = rootBlock.height - padding.top - padding.bottom
   // compute percentages
@@ -96,8 +106,8 @@ function makeBlocks<Id extends string>(
   if (rootBlock.direction === 'column' && _.sum(heights) > availableHeight)
     throw new Error(`Block heights are overflowing! ${heights.join('+')} > ${availableHeight}`)
   // position the elements
-  const rootTop = (rootBlock?.top ?? 0) + padding.top
-  const rootLeft = (rootBlock?.left ?? 0) + padding.left
+  const rootTop = rootBlock.top + padding.top
+  const rootLeft = rootBlock.left + padding.left
   let lefts: number[]
   let tops: number[]
   if (rootBlock.direction === 'column') {
@@ -107,7 +117,7 @@ function makeBlocks<Id extends string>(
     lefts = widths.map((_w, i) => rootLeft + _.sum(widths.slice(0, i)))
     tops = heights.map(() => rootTop)
   } else {
-    throw new Error(`A node with children must specify a direction`)
+    throw new Error(`Unexpected LayoutNode direction: ${JSON.stringify(rootBlock.direction)}`)
   }
   // create the blocks
   const blocks = _.times(nodes.length).map<LayoutBlock & { node: LayoutNode<Id> }>((i) => {
