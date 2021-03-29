@@ -35,16 +35,16 @@ function buildPadding(padding: PaddingFormat) {
 
 type Percentage = string
 
-export type LayoutNode = {
-  id: string
-  children?: LayoutNode[]
+export type LayoutNode<Id extends string> = {
+  id: Id
+  children?: LayoutNode<Id>[]
   width: number | Percentage | 'auto'
   height: number | Percentage | 'auto'
   direction?: 'row' | 'column'
   padding?: PaddingFormat
 }
 
-export type LayoutNodeRoot = LayoutNode & {
+export type LayoutNodeRoot<Id extends string> = LayoutNode<Id> & {
   width: number
   height: number
   top?: number
@@ -61,18 +61,20 @@ export type LayoutBlock = {
   bottom: number
 }
 
-type Iterate<T, Acc = {}> = T extends [infer Head, ...infer Tail]
-  ? Head extends LayoutNode
-    ? Iterate<Tail, Acc & ComputedLayout<Head>>
-    : Iterate<Tail, Acc>
-  : Acc
+export const makeNode = <Id extends string>(
+  id: Id,
+  config: Omit<LayoutNode<Id>, 'id'>
+): LayoutNode<Id> => ({
+  id,
+  ...config,
+})
 
-type Merge<T> = { [K in keyof T]: T[K] }
-export type ComputedLayout<T extends LayoutNode> = Merge<
-  { [k in T['id']]: LayoutBlock } & Iterate<T['children']>
->
+type ComputedLayout<Id extends string> = { [k in Id]: LayoutBlock }
 
-function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock[] {
+function makeBlocks<Id extends string>(
+  nodes: LayoutNode<Id>[],
+  rootBlock: LayoutNodeRoot<Id>
+): LayoutBlock[] {
   const ids = nodes.map((n) => n.id)
   const padding = buildPadding(rootBlock.padding || 0)
   const availableWidth = rootBlock.width - padding.left - padding.right
@@ -116,7 +118,7 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
     throw new Error(`A node with children must specify a direction`)
   }
   // create the blocks
-  const blocks = _.times(nodes.length).map<LayoutBlock & { node: LayoutNode }>((i) => {
+  const blocks = _.times(nodes.length).map<LayoutBlock & { node: LayoutNode<Id> }>((i) => {
     const id = ids[i]
     const node = nodes[i]
 
@@ -138,7 +140,7 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
   return [...blocks, ...childrenBlocks]
 }
 
-export function makeLayout<T extends LayoutNode = LayoutNode>(root: T): ComputedLayout<T> {
+export function makeLayout<Ids extends string>(root: LayoutNode<Ids>): ComputedLayout<Ids> {
   const blocks = root.children ? [root, ...makeBlocks(root.children, root as any)] : [root]
-  return _.keyBy(blocks, 'id') as ComputedLayout<T>
+  return _.keyBy(blocks, 'id') as ComputedLayout<Ids>
 }

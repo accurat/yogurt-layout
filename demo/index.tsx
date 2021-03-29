@@ -1,6 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { makeLayout } from '../src/index'
+import { makeLayout, makeNode } from '../src/index'
+
+const chartNode = makeNode('chart-wrapper', {
+  width: 'auto',
+  height: '100%',
+  padding: [10, 20],
+  direction: 'row' as 'row',
+  children: [{ id: 'center', width: '100%', height: '100%' }],
+})
 
 const layout = makeLayout({
   id: 'root',
@@ -18,14 +26,7 @@ const layout = makeLayout({
       padding: 0,
       children: [
         { id: 'left', width: 100, height: '100%' },
-        {
-          id: 'center-wrapper',
-          width: 'auto',
-          height: '100%',
-          padding: [10, 20],
-          direction: 'row',
-          children: [{ id: 'center', width: '100%', height: '100%' }],
-        },
+        chartNode,
         { id: 'right', width: 100, height: '100%' },
       ],
     },
