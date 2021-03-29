@@ -13,7 +13,9 @@
   "private": false,
   "license": "MIT",
   "keywords": [
-    "layoutsvgcanvas"
+    "layout",
+    "svg",
+    "canvas"
   ],
   "main": "dist/index.js",
   "files": [
