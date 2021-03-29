@@ -100,7 +100,7 @@ type PaddingFormat =
   | number
   | [number, number]
   | [number, number, number, number]
-  | { top: number; right: number; bottom: number; left: number }
+  | { top?: number; right?: number; bottom?: number; left?: number }
 
 type LayoutBlock = {
   id: string
@@ -113,7 +113,7 @@ type LayoutBlock = {
 
 ## License
 
-[MIT](https://github.com/caesarsol/yogurt-layout/blob/master/LICENSE) © [Cesare Soldini](https://github.com/caesarsol)
+[MIT](https://github.com/accurat/yogurt-layout/blob/master/LICENSE) © [Accurat](https://github.com/accurat)
 
 ---
 
