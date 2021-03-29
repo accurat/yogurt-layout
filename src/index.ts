@@ -14,7 +14,7 @@ export type PaddingFormat =
   | number
   | [number, number]
   | [number, number, number, number]
-  | { top: number; right: number; bottom: number; left: number }
+  | { top?: number; right?: number; bottom?: number; left?: number }
 
 function buildPadding(padding: PaddingFormat) {
   if (typeof padding === 'number') {
@@ -26,6 +26,8 @@ function buildPadding(padding: PaddingFormat) {
   } else if (Array.isArray(padding)) {
     const [top = 0, right = 0, bottom = 0, left = 0] = padding
     return { top, right, bottom, left }
+  } else if (_.isObject(padding)) {
+    return { top: 0, left: 0, right: 0, bottom: 0, ...padding }
   } else {
     throw new Error(`Unrecognized margin format: ${JSON.stringify(padding)}`)
   }
