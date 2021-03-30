@@ -10,11 +10,11 @@ function computePercentage(value: string, total: number) {
   return total * (percentage / 100)
 }
 
-type PaddingFormat =
+export type PaddingFormat =
   | number
   | [number, number]
   | [number, number, number, number]
-  | { top: number; right: number; bottom: number; left: number }
+  | { top?: number; right?: number; bottom?: number; left?: number }
 
 function buildPadding(padding: PaddingFormat) {
   if (typeof padding === 'number') {
@@ -26,6 +26,8 @@ function buildPadding(padding: PaddingFormat) {
   } else if (Array.isArray(padding)) {
     const [top = 0, right = 0, bottom = 0, left = 0] = padding
     return { top, right, bottom, left }
+  } else if (_.isObject(padding)) {
+    return { top: 0, left: 0, right: 0, bottom: 0, ...padding }
   } else {
     throw new Error(`Unrecognized margin format: ${JSON.stringify(padding)}`)
   }
@@ -33,48 +35,38 @@ function buildPadding(padding: PaddingFormat) {
 
 type Percentage = string
 
-type LayoutNode = {
-  id: string
-  children?: LayoutNode[]
+export type LayoutNode<Id extends string> = {
+  id: Id
+  children?: LayoutNode<Id>[]
   width: number | Percentage | 'auto'
   height: number | Percentage | 'auto'
   direction?: 'row' | 'column'
   padding?: PaddingFormat
 }
 
-type LayoutNodeRoot = LayoutNode & { width: number; height: number; top?: number; left?: number }
+export type LayoutNodeRoot<Id extends string> = LayoutNode<Id> & {
+  width: number
+  height: number
+  top?: number
+  left?: number
+}
 
-type LayoutBlock = {
+export type LayoutBlock = {
   id: string
   width: number
   height: number
   top: number
   left: number
-  right?: number
-  bottom?: number
+  right: number
+  bottom: number
 }
 
-type LayoutIdsIterator<T extends LayoutNode[], Accumulator extends string[] = []> = T extends [
-  infer Head,
-  ...infer Tail
-]
-  ? Tail extends LayoutNode[]
-    ? LayoutIdsIterator<Tail, [...Accumulator, ...LayoutIdsArray<Head>]>
-    : never
-  : Accumulator
+type ComputedLayout<Id extends string> = { [k in Id]: LayoutBlock }
 
-type LayoutIdsArray<T> = T extends LayoutNode
-  ? T['children'] extends infer Children
-    ? Children extends any[]
-      ? [T['id'], ...LayoutIdsIterator<Children>]
-      : [T['id']]
-    : never
-  : []
-
-type LayoutIds<T> = LayoutIdsArray<T>[number]
-type ComputedLayout<T extends LayoutNode> = { [k in LayoutIds<T>]: LayoutBlock }
-
-function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock[] {
+function makeBlocks<Id extends string>(
+  nodes: LayoutNode<Id>[],
+  rootBlock: LayoutNodeRoot<Id>
+): LayoutBlock[] {
   const ids = nodes.map((n) => n.id)
   const padding = buildPadding(rootBlock.padding || 0)
   const availableWidth = rootBlock.width - padding.left - padding.right
@@ -106,8 +98,8 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
   // position the elements
   const rootTop = (rootBlock?.top ?? 0) + padding.top
   const rootLeft = (rootBlock?.left ?? 0) + padding.left
-  let lefts
-  let tops
+  let lefts: number[]
+  let tops: number[]
   if (rootBlock.direction === 'column') {
     lefts = widths.map(() => rootLeft)
     tops = heights.map((_h, i) => rootTop + _.sum(heights.slice(0, i)))
@@ -118,17 +110,20 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
     throw new Error(`A node with children must specify a direction`)
   }
   // create the blocks
-  const blocks = _.zip<LayoutNode | string | number>(nodes, ids, widths, heights, tops, lefts).map(
-    ([node, id, width, height, top, left]) =>
-      ({
-        id,
-        width,
-        height,
-        top,
-        left,
-        node,
-      } as LayoutBlock & { node: LayoutNode })
-  )
+  const blocks = _.times(nodes.length).map<LayoutBlock & { node: LayoutNode<Id> }>((i) => {
+    const id = ids[i]
+    const node = nodes[i]
+
+    const width = widths[i]
+    const height = heights[i]
+    const top = tops[i]
+    const left = lefts[i]
+    const bottom = top + height
+    const right = left + width
+
+    return { id, width, height, top, left, node, bottom, right }
+  })
+
   // append their children blocks
   const childrenBlocks = blocks.flatMap((b) =>
     b.node.children !== undefined ? makeBlocks(b.node.children, { ...b.node, ...b }) : []
@@ -137,7 +132,7 @@ function makeBlocks(nodes: LayoutNode[], rootBlock: LayoutNodeRoot): LayoutBlock
   return [...blocks, ...childrenBlocks]
 }
 
-export function makeLayout<T extends LayoutNode = LayoutNode>(root: T): ComputedLayout<T> {
+export function makeLayout<Ids extends string>(root: LayoutNode<Ids>): ComputedLayout<Ids> {
   const blocks = root.children ? [root, ...makeBlocks(root.children, root as any)] : [root]
-  return _.keyBy(blocks, 'id') as ComputedLayout<T>
+  return _.keyBy(blocks, 'id') as ComputedLayout<Ids>
 }
