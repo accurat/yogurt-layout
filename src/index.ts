@@ -61,14 +61,6 @@ export type LayoutBlock = {
   bottom: number
 }
 
-export const makeNode = <Id extends string>(
-  id: Id,
-  config: Omit<LayoutNode<Id>, 'id'>
-): LayoutNode<Id> => ({
-  id,
-  ...config,
-})
-
 type ComputedLayout<Id extends string> = { [k in Id]: LayoutBlock }
 
 function makeBlocks<Id extends string>(
