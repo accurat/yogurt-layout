@@ -132,7 +132,15 @@ function makeBlocks<Id extends string>(
   return [...blocks, ...childrenBlocks]
 }
 
-export function makeLayout<Ids extends string>(root: LayoutNode<Ids>): ComputedLayout<Ids> {
-  const blocks = root.children ? [root, ...makeBlocks(root.children, root as any)] : [root]
+export function makeLayout<Ids extends string>(root: LayoutNodeRoot<Ids>): ComputedLayout<Ids> {
+  const rootBlock: LayoutBlock = {
+    left: 0,
+    top: 0,
+    right: root.width + (root.left ?? 0),
+    bottom: root.height + (root.top ?? 0),
+    ..._.omit(root, 'children', 'node', 'padding', 'direction'),
+  }
+
+  const blocks = root.children ? [rootBlock, ...makeBlocks(root.children, root)] : [rootBlock]
   return _.keyBy(blocks, 'id') as ComputedLayout<Ids>
 }
