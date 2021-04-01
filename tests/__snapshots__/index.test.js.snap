@@ -30,26 +30,12 @@ Object {
     "width": 200,
   },
   "root": Object {
-    "children": Array [
-      Object {
-        "height": "100%",
-        "id": "aside",
-        "width": 100,
-      },
-      Object {
-        "height": "100%",
-        "id": "content-1",
-        "width": "auto",
-      },
-      Object {
-        "height": "100%",
-        "id": "content-2",
-        "width": "auto",
-      },
-    ],
-    "direction": "row",
+    "bottom": 500,
     "height": 500,
     "id": "root",
+    "left": 0,
+    "right": 500,
+    "top": 0,
     "width": 500,
   },
 }
@@ -76,32 +62,12 @@ Object {
     "width": 460,
   },
   "root": Object {
-    "children": Array [
-      Object {
-        "height": 50,
-        "id": "title",
-        "width": "100%",
-      },
-      Object {
-        "height": "auto",
-        "id": "content",
-        "width": "100%",
-      },
-      Object {
-        "height": 50,
-        "id": "footer",
-        "width": "100%",
-      },
-    ],
-    "direction": "column",
+    "bottom": 500,
     "height": 500,
     "id": "root",
-    "padding": Array [
-      10,
-      20,
-      30,
-      20,
-    ],
+    "left": 0,
+    "right": 500,
+    "top": 0,
     "width": 500,
   },
   "title": Object {
@@ -173,58 +139,12 @@ Object {
     "width": 100,
   },
   "root": Object {
-    "children": Array [
-      Object {
-        "height": 50,
-        "id": "title",
-        "width": "100%",
-      },
-      Object {
-        "children": Array [
-          Object {
-            "height": "100%",
-            "id": "left",
-            "width": 100,
-          },
-          Object {
-            "children": Array [
-              Object {
-                "height": "100%",
-                "id": "center",
-                "width": "100%",
-              },
-            ],
-            "direction": "row",
-            "height": "100%",
-            "id": "center-wrapper",
-            "padding": Array [
-              10,
-              20,
-            ],
-            "width": "auto",
-          },
-          Object {
-            "height": "100%",
-            "id": "right",
-            "width": 100,
-          },
-        ],
-        "direction": "row",
-        "height": "auto",
-        "id": "chart",
-        "padding": 0,
-        "width": "100%",
-      },
-      Object {
-        "height": 150,
-        "id": "legend",
-        "width": "100%",
-      },
-    ],
-    "direction": "column",
+    "bottom": 500,
     "height": 500,
     "id": "root",
-    "padding": 20,
+    "left": 0,
+    "right": 500,
+    "top": 0,
     "width": 500,
   },
   "title": Object {
