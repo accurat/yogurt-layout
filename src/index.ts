@@ -94,15 +94,15 @@ function makeBlocks<Id extends string>(
     isPercentage(h) ? computePercentage(h, availableHeight) : h
   )
   // compute 'auto'
-  const minWidth = _.sumBy(widthsFlexible, (w) => (w === 'auto' ? 0 : w))
-  const minHeight = _.sumBy(heightsFlexible, (h) => (h === 'auto' ? 0 : h))
-  const widthAuto = availableWidth - minWidth
-  const heightAuto = availableHeight - minHeight
+  const takenWidth = _.sumBy(widthsFlexible, (w) => (w === 'auto' ? 0 : w))
+  const takenHeight = _.sumBy(heightsFlexible, (h) => (h === 'auto' ? 0 : h))
+  const countWidthAuto = widthsFlexible.filter((w) => w === 'auto').length
+  const countWeightAuto = heightsFlexible.filter((h) => h === 'auto').length
+  const widthAuto = (availableWidth - takenWidth) / countWidthAuto
+  const heightAuto = (availableHeight - takenHeight) / countWeightAuto
   // replace 'auto'
-  const widthAutoCount = widthsFlexible.filter((w) => w === 'auto').length
-  const heightAutoCount = heightsFlexible.filter((h) => h === 'auto').length
-  const widths = widthsFlexible.map((w) => (w === 'auto' ? widthAuto / widthAutoCount : w))
-  const heights = heightsFlexible.map((h) => (h === 'auto' ? heightAuto / heightAutoCount : h))
+  const widths = widthsFlexible.map((w) => (w === 'auto' ? widthAuto : w))
+  const heights = heightsFlexible.map((h) => (h === 'auto' ? heightAuto : h))
   // stop abruptly if sizes overflow
   if (rootBlock.direction === 'row' && _.sum(widths) > availableWidth)
     throw new Error(`Block widths are overflowing! ${widths.join('+')} > ${availableWidth}`)
