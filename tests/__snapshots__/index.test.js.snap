@@ -1,5 +1,64 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`works with a defaulted layout 1`] = `
+Object {
+  "content": Object {
+    "bottom": 450,
+    "height": 400,
+    "id": "content",
+    "left": 0,
+    "right": 500,
+    "top": 50,
+    "width": 500,
+  },
+  "content-1": Object {
+    "bottom": 450,
+    "height": 400,
+    "id": "content-1",
+    "left": 0,
+    "right": 250,
+    "top": 50,
+    "width": 250,
+  },
+  "content-2": Object {
+    "bottom": 450,
+    "height": 400,
+    "id": "content-2",
+    "left": 250,
+    "right": 500,
+    "top": 50,
+    "width": 250,
+  },
+  "footer": Object {
+    "bottom": 500,
+    "height": 50,
+    "id": "footer",
+    "left": 0,
+    "right": 500,
+    "top": 450,
+    "width": 500,
+  },
+  "root": Object {
+    "bottom": 500,
+    "height": 500,
+    "id": "root",
+    "left": 0,
+    "right": 500,
+    "top": 0,
+    "width": 500,
+  },
+  "title": Object {
+    "bottom": 50,
+    "height": 50,
+    "id": "title",
+    "left": 0,
+    "right": 500,
+    "top": 0,
+    "width": 500,
+  },
+}
+`;
+
 exports[`works with a double-auto layout 1`] = `
 Object {
   "aside": Object {

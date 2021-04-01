@@ -8,7 +8,7 @@ const chartNode: LayoutNode<'chart-wrapper' | 'center'> = {
   height: '100%',
   padding: [10, 20],
   direction: 'row',
-  children: [{ id: 'center', width: '100%', height: '100%' }],
+  children: [{ id: 'center', height: '100%' }],
 }
 
 const layout = makeLayout({
@@ -18,20 +18,14 @@ const layout = makeLayout({
   height: 500,
   padding: 20,
   children: [
-    { id: 'title', width: '100%', height: 50 },
+    { id: 'title', height: 50 },
     {
       id: 'chart',
-      width: '100%',
-      height: 'auto',
       direction: 'row',
       padding: 0,
-      children: [
-        { id: 'left', width: 100, height: '100%' },
-        chartNode,
-        { id: 'right', width: 100, height: '100%' },
-      ],
+      children: [{ id: 'left', width: 100 }, chartNode, { id: 'right', width: 100 }],
     },
-    { id: 'legend', width: '100%', height: 150 },
+    { id: 'legend', height: 150 },
   ],
 })
 

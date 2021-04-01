@@ -87,3 +87,22 @@ it(`errors out when layout has no space`, () => {
     })
   ).toThrow(`Block heights are overflowing! 500+1 > 500`)
 })
+
+it(`works with a defaulted layout`, () => {
+  const layout = makeLayout({
+    id: 'root',
+    direction: 'column',
+    width: 500,
+    height: 500,
+    children: [
+      { id: 'title', height: 50 },
+      {
+        id: 'content',
+        children: [{ id: 'content-1', width: '50%' }, { id: 'content-2' }],
+      },
+      { id: 'footer', height: 50 },
+    ],
+  })
+
+  expect(removeNodeProperties(layout)).toMatchSnapshot()
+})
