@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-function isNumber(x: unknown): x is number {
-  return Number.isFinite(x)
+function isPercentage(p: Dimension | undefined): p is Percentage {
+  return typeof p === 'string' && p[p.length - 1] === '%'
 }
 
 function computePercentage(value: string, total: number) {
@@ -33,13 +33,15 @@ function buildPadding(padding: PaddingFormat) {
   }
 }
 
-type Percentage = string
+type Percentage = `${string}%`
+
+type Dimension = number | Percentage | 'auto'
 
 export type LayoutNode<Id extends string> = {
   id: Id
   children?: LayoutNode<Id>[]
-  width: number | Percentage | 'auto'
-  height: number | Percentage | 'auto'
+  width?: Dimension
+  height?: Dimension
   direction?: 'row' | 'column'
   padding?: PaddingFormat
 }
@@ -81,14 +83,15 @@ function makeBlocks<Id extends string>(
   const padding = buildPadding(rootBlock.padding)
   const availableWidth = rootBlock.width - padding.left - padding.right
   const availableHeight = rootBlock.height - padding.top - padding.bottom
+  // make dimensions defaulted
+  const defaultedWidths = nodes.map((n) => n.width ?? 'auto')
+  const defaultedHeights = nodes.map((n) => n.height ?? 'auto')
   // compute percentages
-  const widthsFlexible = nodes.map((n) =>
-    isNumber(n.width) || n.width === 'auto' ? n.width : computePercentage(n.width, availableWidth)
+  const widthsFlexible = defaultedWidths.map((w) =>
+    isPercentage(w) ? computePercentage(w, availableWidth) : w
   )
-  const heightsFlexible = nodes.map((n) =>
-    isNumber(n.height) || n.height === 'auto'
-      ? n.height
-      : computePercentage(n.height, availableHeight)
+  const heightsFlexible = defaultedHeights.map((h) =>
+    isPercentage(h) ? computePercentage(h, availableHeight) : h
   )
   // compute 'auto'
   const minWidth = _.sumBy(widthsFlexible, (w) => (w === 'auto' ? 0 : w))
