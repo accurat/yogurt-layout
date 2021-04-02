@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
-function isNumber(x: unknown): x is number {
-  return Number.isFinite(x)
+function isPercentage(p: Dimension | undefined): p is Percentage {
+  return typeof p === 'string' && p[p.length - 1] === '%'
 }
 
 function computePercentage(value: string, total: number) {
@@ -33,13 +33,15 @@ function buildPadding(padding: PaddingFormat) {
   }
 }
 
-type Percentage = string
+type Percentage = `${string}%`
+
+type Dimension = number | Percentage | 'auto'
 
 export type LayoutNode<Id extends string> = {
   id: Id
   children?: LayoutNode<Id>[]
-  width: number | Percentage | 'auto'
-  height: number | Percentage | 'auto'
+  width?: Dimension
+  height?: Dimension
   direction?: 'row' | 'column'
   padding?: PaddingFormat
 }
@@ -63,41 +65,60 @@ export type LayoutBlock = {
 
 type ComputedLayout<Id extends string> = { [k in Id]: LayoutBlock }
 
+const defaultBlockProperties = {
+  width: 'auto',
+  height: 'auto',
+  direction: 'row',
+  padding: 0,
+  top: 0,
+  left: 0,
+}
+
 function makeBlocks<Id extends string>(
   nodes: LayoutNode<Id>[],
-  rootBlock: LayoutNodeRoot<Id>
+  rootBlockNondefaulted: LayoutNodeRoot<Id>
 ): LayoutBlock[] {
+  const rootBlock = Object.assign({}, defaultBlockProperties, rootBlockNondefaulted)
   const ids = nodes.map((n) => n.id)
-  const padding = buildPadding(rootBlock.padding || 0)
+  const padding = buildPadding(rootBlock.padding)
   const availableWidth = rootBlock.width - padding.left - padding.right
   const availableHeight = rootBlock.height - padding.top - padding.bottom
+  // make dimensions defaulted
+  const defaultedWidths = nodes.map((n) => n.width ?? 'auto')
+  const defaultedHeights = nodes.map((n) => n.height ?? 'auto')
   // compute percentages
-  const widthsFlexible = nodes.map((n) =>
-    isNumber(n.width) || n.width === 'auto' ? n.width : computePercentage(n.width, availableWidth)
+  const widthsFlexible = defaultedWidths.map((w) =>
+    isPercentage(w) ? computePercentage(w, availableWidth) : w
   )
-  const heightsFlexible = nodes.map((n) =>
-    isNumber(n.height) || n.height === 'auto'
-      ? n.height
-      : computePercentage(n.height, availableHeight)
+  const heightsFlexible = defaultedHeights.map((h) =>
+    isPercentage(h) ? computePercentage(h, availableHeight) : h
   )
   // compute 'auto'
-  const minWidth = _.sumBy(widthsFlexible, (w) => (w === 'auto' ? 0 : w))
-  const minHeight = _.sumBy(heightsFlexible, (h) => (h === 'auto' ? 0 : h))
-  const widthAuto = availableWidth - minWidth
-  const heightAuto = availableHeight - minHeight
+  const widthsNonAuto = widthsFlexible.filter((w) => w !== 'auto')
+  const heightsNonAuto = heightsFlexible.filter((w) => w !== 'auto')
+  const takenWidth = _.sum(widthsNonAuto)
+  const takenHeight = _.sum(heightsNonAuto)
+  const countWidthsAuto = nodes.length - widthsNonAuto.length
+  const countHeightsAuto = nodes.length - heightsNonAuto.length
+  const widthAuto =
+    rootBlock.direction === 'column'
+      ? availableWidth
+      : (availableWidth - takenWidth) / countWidthsAuto
+  const heightAuto =
+    rootBlock.direction === 'row'
+      ? availableHeight
+      : (availableHeight - takenHeight) / countHeightsAuto
   // replace 'auto'
-  const widthAutoCount = widthsFlexible.filter((w) => w === 'auto').length
-  const heightAutoCount = heightsFlexible.filter((h) => h === 'auto').length
-  const widths = widthsFlexible.map((w) => (w === 'auto' ? widthAuto / widthAutoCount : w))
-  const heights = heightsFlexible.map((h) => (h === 'auto' ? heightAuto / heightAutoCount : h))
+  const widths = widthsFlexible.map((w) => (w === 'auto' ? widthAuto : w))
+  const heights = heightsFlexible.map((h) => (h === 'auto' ? heightAuto : h))
   // stop abruptly if sizes overflow
   if (rootBlock.direction === 'row' && _.sum(widths) > availableWidth)
     throw new Error(`Block widths are overflowing! ${widths.join('+')} > ${availableWidth}`)
   if (rootBlock.direction === 'column' && _.sum(heights) > availableHeight)
     throw new Error(`Block heights are overflowing! ${heights.join('+')} > ${availableHeight}`)
   // position the elements
-  const rootTop = (rootBlock?.top ?? 0) + padding.top
-  const rootLeft = (rootBlock?.left ?? 0) + padding.left
+  const rootTop = rootBlock.top + padding.top
+  const rootLeft = rootBlock.left + padding.left
   let lefts: number[]
   let tops: number[]
   if (rootBlock.direction === 'column') {
@@ -107,7 +128,7 @@ function makeBlocks<Id extends string>(
     lefts = widths.map((_w, i) => rootLeft + _.sum(widths.slice(0, i)))
     tops = heights.map(() => rootTop)
   } else {
-    throw new Error(`A node with children must specify a direction`)
+    throw new Error(`Unexpected LayoutNode direction: ${JSON.stringify(rootBlock.direction)}`)
   }
   // create the blocks
   const blocks = _.times(nodes.length).map<LayoutBlock & { node: LayoutNode<Id> }>((i) => {
@@ -121,7 +142,7 @@ function makeBlocks<Id extends string>(
     const bottom = top + height
     const right = left + width
 
-    return { id, width, height, top, left, node, bottom, right }
+    return { id, width, height, top, left, bottom, right, node }
   })
 
   // append their children blocks
