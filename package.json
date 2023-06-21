@@ -17,6 +17,7 @@
     "svg",
     "canvas"
   ],
+  "type": "module",
   "main": "dist/index.js",
   "files": [
     "dist/"
